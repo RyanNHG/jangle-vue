@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+  <!-- Site Metadata -->
+  <title>Jangle</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <!-- Font Icons, Flexbox Grid -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.2.3/css/bulma.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+
+  <!-- CSS -->
+  <link rel="stylesheet" type="text/css" href="style.css">
+
+</head>
+<body>
+
+
+  <!-- App -->
+  <div id="app" class="app">
+    <sign-in-page v-if="currentPage == '/login'"></sign-in-page>
+    <collections-page v-if="currentPage == '/app/collections'"></collections-page>
+  </div>
+
+  <!-- Vue, Vuex, Vue Router -->
+  <script src="https://unpkg.com/vue/dist/vue.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vuex/2.0.0/vuex.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vue-router/2.0.2/vue-router.min.js"></script>
+
+  <!-- Templates -->
+  <script type="text/x-template" id="signInFormTemplate">
+    <form class="sign-in-form">
+
+      <div class="notification is-danger" v-show="errorMessage">
+        <i class="fa fa-lg fa-exclamation-circle"></i> {{errorMessage}}
+      </div>
+
+      <label class="label">Username:</label>
+      <p class="control has-icon">
+        <input class="input is-medium" v-bind:class="inputClasses" type="text" v-model="username" name="username" />  
+        <i class="fa fa-user"></i>
+      </p>
+      
+      <label class="label">Password:</label>
+      <p class="control has-icon">
+        <input class="input is-medium" v-bind:class="inputClasses" type="password" v-model="password" name="username" />
+        <i class="fa fa-lock"></i>
+      </p>
+
+      <p class="control is-clearfix">
+        <button 
+          class="button is-primary is-pulled-right is-medium" 
+          v-bind:class="signInButtonClasses"
+          type="submit" 
+          v-on:click.prevent="loginUser(username, password)">
+          Sign In
+        </button>
+      </p>
+
+    </form>
+  </script>  
+
+  <script type="text/x-template" id="signInPageTemplate">
+    <div class="hero is-fullheight">
+      <div class="hero-body">
+        <div class="container">
+          <div class="column is-half is-offset-one-quarter">
+            <div class="box">
+              <h1 class="title is-1 has-text-centered">Jangle</h1>
+              <sign-in-form></sign-in-form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </script>
+
+  <script type="text/x-template" id="collectionsPageTemplate">
+    <div class="hero is-fullheight">
+      <div class="hero-head">
+        <navbar></navbar>
+        <div class="container">
+          <div class="level">
+            <div class="level-left">
+              <div class="level-item">
+                <h1 class="title is-2">Collections</h1>
+              </div>
+            </div>
+            <div class="level-right">
+              <div class="level-item">
+                <p class="control has-addons">
+                  <input class="input is-medium" type="text" placeholder="Find a collection">
+                  <a class="button is-medium is-info">
+                    <span></span>
+                    <span class="icon"><i class="fa fa-search"></i></span>
+                    <span></span>
+                  </a>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </script>
+
+  <script type="text/x-template" id="navbarTemplate">
+    <header class="nav">
+      <div class="container">
+        <div class="nav-left">
+          <a class="nav-item" href="#/app">
+            <h3 class="title is-3">Jangle</h3>
+          </a>
+        </div>
+        <div class="nav-right">
+          <span class="nav-item">
+            <a v-on:click="signOut()" class="button">
+              <span class="icon">
+                <i class="fa fa-sign-out"></i>
+              </span>
+              <span>Sign Out</span>
+            </a>
+          </span>
+        </div>
+      </div>
+    </header>
+  </script>
+
+  <!-- JS -->
+  <script type="text/javascript" src="app.js"></script>
+
+</body>
+</html>
