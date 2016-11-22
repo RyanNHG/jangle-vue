@@ -82,6 +82,16 @@
       <navbar></navbar>
       <div class="columns is-gapless" style="height: calc(100% - 52px);">
         <side-nav></side-nav>
+        <div class="column is-hidden-mobile">
+          <div class="level" style="height: 100%;">
+            <div class="level-item has-text-centered" >
+              <h4 class="subtitle is-2" style="color: #ccc">
+                <span v-if="currentCollection">{{currentCollection.label}}</span>
+                <span v-else>Oooh... Spacious!</span>
+              </h4>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </script>
@@ -149,9 +159,9 @@
         <div style="height: 100%; overflow: auto;">
           <aside class="menu" style="padding: 20px;">
 
-            <!-- Filtered Results -->
+            <!-- Filtered Collections -->
             <side-nav-menu-section 
-            v-if="displayFilteredResults" 
+            v-if="displayFilteredCollections"
             v-bind:header-label="filterSectionLabel"
             v-bind:collections="filteredCollections">
             </side-nav-menu-section>
@@ -191,8 +201,8 @@
           <li v-if="collections.length == 0">
             <a class="is-disabled">No collections found.</a>
           </li>
-          <li v-else v-for="result in collections">
-            <a v-on:click="collectionSelected(result.label)" v-html="result.label"></a>
+          <li v-else v-for="collection in collections">
+            <a v-on:click="collectionSelected(collection)" v-html="collection.label"></a>
           </li>
         </ul>
       </span>
@@ -205,9 +215,9 @@
               <p class="title is-4">No collections found.</p>
             </a>
           </li>
-          <li v-else v-for="result in collections" style="margin-bottom: 20px;">
-            <a class="box has-text-centered" v-on:click="collectionSelected(result.label)">
-              <p class="title is-4" v-html="result.label"></p>
+          <li v-else v-for="collection in collections" style="margin-bottom: 20px;">
+            <a class="box has-text-centered" v-on:click="collectionSelected(collection)">
+              <p class="title is-4" v-html="collection.label"></p>
             </a>
           </li>
         </ul>

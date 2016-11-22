@@ -2,6 +2,7 @@ const store = new Vuex.Store({
 
     state: {
         currentPage: '/app/collections',
+        currentCollection: null,
         user: null
     },
 
@@ -17,22 +18,33 @@ const store = new Vuex.Store({
             return 'sign-in-page';
         },
         navHeader: function(state){
-            switch(state.currentPage)
+
+            if(state.currentCollection)
             {
-                case '/app/collections':
-                    return 'Collections';
+                return state.currentCollection.label;
             }
-            return '';
+            else
+            {
+                switch(state.currentPage)
+                {
+                    case '/app/collections':
+                        return 'Collections';
+                }
+                return '';
+            }
         }
     },
 
     mutations: {
 
-        setUser: (state, payload) => {
+        setUser: function(state, payload) {
             state.user = payload;
         },
-        setPage: (state, newPage) => {
+        setPage: function(state, newPage) {
             state.currentPage = newPage;
+        },
+        setCollection: function(state, newCollection) {
+            state.currentCollection = newCollection;
         }
 
     }
@@ -122,7 +134,13 @@ Vue.component('sign-in-form', {
 });
 
 Vue.component('collections-page', {
-    template: '#collectionsPageTemplate'
+    template: '#collectionsPageTemplate',
+
+    computed: {
+        currentCollection: function(){
+            return store.state.currentCollection;
+        }
+    }
 });
 
 Vue.component('navbar', {
@@ -171,11 +189,8 @@ Vue.component('side-nav', {
                 return collection.label.toLowerCase().includes(self.filterQuery.toLowerCase());
             });
         },
-        displayFilteredResults: function(){
+        displayFilteredCollections: function(){
             return this.filterQuery.length > 2;
-        },
-        noFilterResults: function(){
-            return this.filteredCollections.length == 0;
         },
         filterSectionLabel: function(){
 
@@ -204,8 +219,8 @@ Vue.component('side-nav-menu-section', {
     props: ['headerLabel', 'collections'],
 
     methods: {
-        collectionSelected: function(collectionLabel) {
-            console.log(collectionLabel);
+        collectionSelected: function(collection) {
+            store.commit('setCollection', collection);
         }
     }
 
