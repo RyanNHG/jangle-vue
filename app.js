@@ -1,7 +1,7 @@
 const store = new Vuex.Store({
 
     state: {
-        currentPage: '/login',
+        currentPage: '/app/collections',
         user: null
     },
 
@@ -107,12 +107,22 @@ Vue.component('collections-page', {
 Vue.component('navbar', {
     template: '#navbarTemplate',
 
+    data: function(){
+        return {
+            navHeader: 'Collections'
+        };
+    },
+
     methods: {
         signOut: function(){
             store.commit('setUser', null);
             store.commit('setPage', '/login');
         }
     }
+});
+
+Vue.component('side-nav', {
+    template: '#sideNavTemplate'
 });
 
 new Vue({

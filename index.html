@@ -77,42 +77,28 @@
   </script>
 
   <script type="text/x-template" id="collectionsPageTemplate">
-    <div class="hero is-fullheight">
-      <div class="hero-head">
-        <navbar></navbar>
-        <div class="container">
-          <div class="level">
-            <div class="level-left">
-              <div class="level-item">
-                <h1 class="title is-2">Collections</h1>
-              </div>
-            </div>
-            <div class="level-right">
-              <div class="level-item">
-                <p class="control has-addons">
-                  <input class="input is-medium" type="text" placeholder="Find a collection">
-                  <a class="button is-medium is-info">
-                    <span></span>
-                    <span class="icon"><i class="fa fa-search"></i></span>
-                    <span></span>
-                  </a>
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
+    <div style="height: 100%;">
+      <navbar></navbar>
+      <div class="columns is-gapless" style="height: calc(100% - 52px);">
+        <side-nav></side-nav>
       </div>
     </div>
   </script>
 
   <script type="text/x-template" id="navbarTemplate">
-    <header class="nav">
-      <div class="container">
+    <header class="nav has-shadow">
+      <div class="container is-fluid">
+
         <div class="nav-left">
           <a class="nav-item" href="#/app">
             <h3 class="title is-3">Jangle</h3>
           </a>
         </div>
+
+        <div class="nav-center">
+          <h3 class="nav-item subtitle is-4" v-html="navHeader"></h3>
+        </div>
+
         <div class="nav-right">
           <span class="nav-item">
             <a v-on:click="signOut()" class="button">
@@ -123,8 +109,80 @@
             </a>
           </span>
         </div>
+
       </div>
     </header>
+  </script>
+
+  <script type="text/x-template" id="sideNavTemplate">
+    <div class="column is-narrow" style="height: 100%;">
+      <div class="hero is-bold" style="height:100%;">
+        <div class="hero-footer">
+          <div class="nav">
+            <div class="nav-item" style="width: 100%;">
+              <p class="control has-addons">
+              <input class="input" type="text" placeholder="Find a collection" />
+              <a class="button is-info">
+              Search
+              </a>
+              </p>
+            </div>
+          </div>
+        </div>
+        <div style="overflow: auto;">
+          <aside class="menu" style="padding: 20px;">
+            <p class="menu-label">
+              General
+            </p>
+            <ul class="menu-list">
+              <li><a href="#">Dashboard</a></li>
+              <li><a href="#">Customers</a></li>
+            </ul>
+            <p class="menu-label">
+              Administration
+            </p>
+            <ul class="menu-list">
+              <li><a href="#">Team Settings</a></li>
+              <li>
+                <a class="is-active" href="#">Manage Your Team</a>
+                <ul>
+                  <li><a href="#">Members</a></li>
+                  <li><a href="#">Plugins</a></li>
+                  <li><a href="#">Add a member</a></li>
+                </ul>
+              </li>
+              <li><a href="#">Invitations</a></li>
+              <li><a href="#">Authentication</a></li>
+            </ul>
+            <p class="menu-label">
+              Transactions
+            </p>
+            <ul class="menu-list">
+              <li><a href="#">Payments</a></li>
+              <li><a href="#">Transfers</a></li>
+              <li><a href="#">Balance</a></li>
+            </ul>
+          </aside>
+        </div>
+        <div class="hero-footer">
+          <div class="is-clearfix">
+            <div class="is-pulled-right">
+              <div class="control is-grouped nav-item">
+<!--                   <p class="control">
+                  <a class="button is-link">Cancel</a>
+                </p>
+                <p class="control">
+                  <a class="button is-success is-outlined">Save changes</a>
+                </p> -->
+                <p class="control">
+                  <a class="button is-success is-outlined">Add collection</a>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </script>
 
   <!-- JS -->
