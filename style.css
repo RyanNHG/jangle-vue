@@ -3,3 +3,14 @@ html, body, .app {
     margin: 0;
     overflow: auto;
 }
+
+.component-fade-enter-active, .component-fade-leave-active {
+  transition: opacity .3s ease;
+}
+.component-fade-enter, .component-fade-leave-active {
+  opacity: 0;
+}
+
+.container.is-fluid {
+    margin: 0 20px;
+}

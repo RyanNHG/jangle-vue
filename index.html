@@ -19,8 +19,9 @@
 
   <!-- App -->
   <div id="app" class="app">
-    <sign-in-page v-if="currentPage == '/login'"></sign-in-page>
-    <collections-page v-if="currentPage == '/app/collections'"></collections-page>
+    <transition name="component-fade" mode="out-in">
+      <component v-bind:is="view"></component>
+    </transition>
   </div>
 
   <!-- Vue, Vuex, Vue Router -->
@@ -53,7 +54,7 @@
           class="button is-primary is-pulled-right is-medium" 
           v-bind:class="signInButtonClasses"
           type="submit" 
-          v-on:click.prevent="loginUser(username, password)">
+          v-on:click.prevent="signInUser(username, password)">
           Sign In
         </button>
       </p>
@@ -96,7 +97,7 @@
         </div>
 
         <div class="nav-center">
-          <h3 class="nav-item subtitle is-4" v-html="navHeader"></h3>
+          <h3 class="nav-item subtitle is-4 is-hidden-mobile" v-html="navHeader"></h3>
         </div>
 
         <div class="nav-right">
@@ -117,63 +118,57 @@
   <script type="text/x-template" id="sideNavTemplate">
     <div class="column is-narrow" style="height: 100%;">
       <div class="hero is-bold" style="height:100%;">
-        <div class="hero-footer">
-          <div class="nav">
-            <div class="nav-item" style="width: 100%;">
-              <p class="control has-addons">
-              <input class="input" type="text" placeholder="Find a collection" />
-              <a class="button is-info">
-              Search
-              </a>
+
+        <div class="hero-header">
+
+          <div class="nav is-hidden-mobile">
+            <div class="container is-fluid">
+              <div class="nav-center">
+                <div class="nav-item" style="width: 100%;">
+                  <p class="control has-icon has-icon-right">
+                    <input class="input" type="text" placeholder="Find a collection" v-model="filterQuery" />
+                    <i class="fa fa-search"></i>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>          
+
+          <div class="hero is-hidden-tablet">
+            <div class="hero-body">
+              <h3 class="title is-2 has-text-centered" v-html="navHeader"></h3>
+              <p class="control has-icon has-icon-right">
+                <input class="input is-medium" type="text" placeholder="Find a collection" v-model="filterQuery" />
+                <i class="fa fa-search"></i>
               </p>
             </div>
           </div>
+
         </div>
-        <div style="overflow: auto;">
+
+        <div style="height: 100%; overflow: auto;">
           <aside class="menu" style="padding: 20px;">
-            <p class="menu-label">
-              General
-            </p>
-            <ul class="menu-list">
-              <li><a href="#">Dashboard</a></li>
-              <li><a href="#">Customers</a></li>
-            </ul>
-            <p class="menu-label">
-              Administration
-            </p>
-            <ul class="menu-list">
-              <li><a href="#">Team Settings</a></li>
-              <li>
-                <a class="is-active" href="#">Manage Your Team</a>
-                <ul>
-                  <li><a href="#">Members</a></li>
-                  <li><a href="#">Plugins</a></li>
-                  <li><a href="#">Add a member</a></li>
-                </ul>
-              </li>
-              <li><a href="#">Invitations</a></li>
-              <li><a href="#">Authentication</a></li>
-            </ul>
-            <p class="menu-label">
-              Transactions
-            </p>
-            <ul class="menu-list">
-              <li><a href="#">Payments</a></li>
-              <li><a href="#">Transfers</a></li>
-              <li><a href="#">Balance</a></li>
-            </ul>
+
+            <!-- Filtered Results -->
+            <side-nav-menu-section 
+            v-if="displayFilteredResults" 
+            v-bind:header-label="filterSectionLabel"
+            v-bind:collections="filteredCollections">
+            </side-nav-menu-section>
+
+            <!-- All Collections -->
+            <side-nav-menu-section 
+            v-bind:header-label="allCollectionsLabel" 
+            v-bind:collections="collections">
+            </side-nav-menu-section>
+
           </aside>
         </div>
+
         <div class="hero-footer">
           <div class="is-clearfix">
             <div class="is-pulled-right">
               <div class="control is-grouped nav-item">
-<!--                   <p class="control">
-                  <a class="button is-link">Cancel</a>
-                </p>
-                <p class="control">
-                  <a class="button is-success is-outlined">Save changes</a>
-                </p> -->
                 <p class="control">
                   <a class="button is-success is-outlined">Add collection</a>
                 </p>
@@ -181,8 +176,44 @@
             </div>
           </div>
         </div>
+
       </div>
     </div>
+  </script>
+
+  <script type="text/x-template" id="sideNavMenuSectionTemplate">
+    <span>
+
+      <span class="is-hidden-mobile">
+        <p class="menu-label" v-html="headerLabel"></p>
+
+        <ul class="menu-list" style="margin-bottom: 20px">
+          <li v-if="collections.length == 0">
+            <a class="is-disabled">No collections found.</a>
+          </li>
+          <li v-else v-for="result in collections">
+            <a v-on:click="collectionSelected(result.label)" v-html="result.label"></a>
+          </li>
+        </ul>
+      </span>
+
+      <span class="is-hidden-tablet">
+        <p class="menu-label has-text-centered subtitle is-4" v-html="headerLabel"></p>
+        <ul style="margin-bottom: 40px">
+          <li v-if="collections.length == 0">
+            <a class="box has-text-centered is-disabled">
+              <p class="title is-4">No collections found.</p>
+            </a>
+          </li>
+          <li v-else v-for="result in collections" style="margin-bottom: 20px;">
+            <a class="box has-text-centered" v-on:click="collectionSelected(result.label)">
+              <p class="title is-4" v-html="result.label"></p>
+            </a>
+          </li>
+        </ul>
+      </span>
+
+    </span>
   </script>
 
   <!-- JS -->
