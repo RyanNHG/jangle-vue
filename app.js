@@ -1,7 +1,7 @@
 const store = new Vuex.Store({
 
     state: {
-        currentPage: '/app/collections',
+        currentPage: '/sign-in',
         collections: [
             { 
                 label: 'Animals',
