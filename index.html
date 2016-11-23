@@ -68,7 +68,7 @@
         <div class="container">
           <div class="column is-half is-offset-one-quarter">
             <div class="box">
-              <h1 class="title is-1 has-text-centered">Jangle</h1>
+              <h1 class="title is-1 has-text-centered" style="font-weight: bold;">Jangle</h1>
               <sign-in-form></sign-in-form>
             </div>
           </div>
@@ -83,31 +83,71 @@
       <div class="columns is-gapless" style="height: calc(100% - 52px);">
         <side-nav></side-nav>
         <div class="column is-hidden-mobile">
-          <div class="level" style="height: 100%;">
-            <div class="level-item has-text-centered" >
-              <h4 class="subtitle is-2" style="color: #ccc">
-                <span v-if="currentCollection">{{currentCollection.label}}</span>
-                <span v-else>Oooh... Spacious!</span>
-              </h4>
-            </div>
-          </div>
+          <document-view></document-view>
         </div>
+      </div>
+    </div>
+  </script>
+
+  <script type="text/x-template" id="documentViewTemplate">
+    <div class="level" style="height: 100%;">
+      <div class="level-item has-text-centered" >
+        <h4 class="subtitle is-2 is-hidden-mobile" style="color: #ccc">
+          <span v-if="currentCollection">'{{currentCollection.label}}' Documents</span>
+          <span v-else>Oooh... Spacious!</span>
+        </h4>
+        <h4 class="subtitle is-4 is-hidden-tablet" style="color: #ccc">
+          <span v-if="currentCollection">'{{currentCollection.label}}' Documents</span>
+        </h4>
       </div>
     </div>
   </script>
 
   <script type="text/x-template" id="navbarTemplate">
     <header class="nav has-shadow">
-      <div class="container is-fluid">
 
+        <!-- Desktop Navbrand -->
+      <div class="container is-fluid is-hidden-mobile">
         <div class="nav-left">
           <a class="nav-item" href="#/app">
-            <h3 class="title is-3">Jangle</h3>
+            <h3 class="title is-3" style="font-weight: bold;">Jangle</h3>
           </a>
         </div>
 
         <div class="nav-center">
-          <h3 class="nav-item subtitle is-4 is-hidden-mobile" v-html="navHeader"></h3>
+          <h3 class="nav-item subtitle is-4" v-html="navHeader"></h3>
+        </div>
+
+        <div class="nav-right">
+          <span class="nav-item">
+            <a v-on:click="signOut()" class="button">
+              <span class="icon">
+                <i class="fa fa-sign-out"></i>
+              </span>
+              <span>Sign Out</span>
+            </a>
+          </span>
+        </div>
+
+      </div>
+
+        <!-- Mobile Navbrand -->
+      <div class="container is-fluid is-hidden-tablet" v-bind:style="{marginLeft: (hasCurrentCollection) ? '0' : '20px'}">
+        <div class="nav-left">
+
+          <span v-if="hasCurrentCollection" class="nav-item is-paddingless">
+            <a v-on:click="removeCollection()" class="button is-medium is-link" style="text-decoration: none;">
+              <span class="icon">
+                <i class="fa fa-arrow-left"></i>
+              </span>
+              <span>Collections</span>
+            </a>
+          </span>
+
+          <a v-else class="nav-item" href="#/app">
+            <h3 class="title is-3" style="font-weight: bold;">Jangle</h3>
+          </a>
+
         </div>
 
         <div class="nav-right">
@@ -131,24 +171,55 @@
 
         <div class="hero-header">
 
-          <div class="nav is-hidden-mobile">
-            <div class="container is-fluid">
+          <!-- Search Bar - Desktop -->
+            <div v-if="collectionIsSelected" class="nav is-hidden-mobile">
+              <div class="container is-fluid">
+                <div class="nav-left">
+                <!-- Back button -->
+                  <div class="nav-item is-paddingless">
+                    <a class="button" v-on:click="clearCurrentCollection()">
+                      <span></span>
+                      <span class="icon">
+                        <i class="fa fa-arrow-left"></i>
+                      </span>
+                      <span></span>
+                    </a>
+                  </div>
+                  <!-- Collection name -->
+                  <div class="nav-item">
+                    <h4 v-html="currentCollection.label" class="subtitle is-5"></h4>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div v-else class="nav is-hidden-mobile">
               <div class="nav-center">
                 <div class="nav-item" style="width: 100%;">
                   <p class="control has-icon has-icon-right">
-                    <input class="input" type="text" placeholder="Find a collection" v-model="filterQuery" />
+                    <input class="input" type="text" placeholder="Find a collection" v-model="collectionQuery" />
                     <i class="fa fa-search"></i>
                   </p>
                 </div>
               </div>
             </div>
-          </div>          
 
+          <!-- Header & Search Mobile -->
           <div class="hero is-hidden-tablet">
-            <div class="hero-body">
+            <div class="hero-body" style="padding-bottom: 0;">
               <h3 class="title is-2 has-text-centered" v-html="navHeader"></h3>
-              <p class="control has-icon has-icon-right">
-                <input class="input is-medium" type="text" placeholder="Find a collection" v-model="filterQuery" />
+              <p v-if="!collectionIsSelected || shouldRenderDocumentView" class="control has-icon has-icon-right">
+
+                <input v-if="collectionIsSelected"
+                class="input is-medium" 
+                type="text" 
+                placeholder="Find a document"
+                />
+
+                <input v-else
+                class="input is-medium" 
+                type="text" 
+                placeholder="Find a collection" 
+                v-model="collectionQuery" />
                 <i class="fa fa-search"></i>
               </p>
             </div>
@@ -156,7 +227,24 @@
 
         </div>
 
-        <div style="height: 100%; overflow: auto;">
+        <template v-if="collectionIsSelected">
+
+          <!-- Mobile View -->
+          <div class="hero-body has-text-centered is-hidden-tablet">
+            <document-view v-if="shouldRenderDocumentView"></document-view>
+            <h4 v-else class="subtitle is-5" style="color: rgb(204, 204, 204);">'{{currentCollection.label}}' Information</h4>
+          </div>
+
+          <!-- Desktop View -->
+          <div class="hero-body has-text-centered is-hidden-mobile">
+            <h4 class="subtitle is-5" style="color: rgb(204, 204, 204);">'{{currentCollection.label}}' Information</h4>
+          </div>
+
+        </template>
+
+
+        <!-- Collection Menu -->
+        <div v-else style="height: 100%; overflow: auto;">
           <aside class="menu" style="padding: 20px;">
 
             <!-- Filtered Collections -->
@@ -173,17 +261,59 @@
             </side-nav-menu-section>
 
           </aside>
+
         </div>
 
         <div class="hero-footer">
           <div class="is-clearfix">
-            <div class="is-pulled-right">
+
+            <!-- Desktop buttons -->
+            <div class="is-pulled-right is-hidden-mobile">
+
               <div class="control is-grouped nav-item">
-                <p class="control">
-                  <a class="button is-success is-outlined">Add collection</a>
-                </p>
+                <template v-if="collectionIsSelected">
+                  <p class="control">
+                    <a class="button is-danger is-outlined">Remove collection</a>
+                  </p>
+                  <p class="control">
+                    <a class="button is-info is-outlined">Edit collection</a>
+                  </p>
+                </template>
+                <template v-else>
+                  <p class="control">
+                    <a class="button is-success is-outlined">Add collection</a>
+                  </p>
+                </template>
               </div>
+
             </div>
+
+            <!-- Mobile buttons -->
+            <div class="is-pulled-right is-hidden-tablet">
+
+              <div class="control is-grouped nav-item">
+                <template v-if="collectionIsSelected">
+                  <p v-if="shouldRenderDocumentView" class="control">
+                    <a class="button is-success is-outlined is-medium">Add document</a>
+                  </p>
+                  <template v-else>
+                    <p class="control">
+                      <a class="button is-danger is-outlined is-medium">Remove collection</a>
+                    </p>
+                    <p class="control">
+                      <a class="button is-info is-outlined is-medium">Edit collection</a>
+                    </p>
+                  </template>
+                </template>
+                <template v-else>
+                  <p class="control">
+                    <a class="button is-success is-outlined is-medium">Add collection</a>
+                  </p>
+                </template>
+              </div>
+
+            </div>
+
           </div>
         </div>
 
@@ -216,9 +346,24 @@
             </a>
           </li>
           <li v-else v-for="collection in collections" style="margin-bottom: 20px;">
-            <a class="box has-text-centered" v-on:click="collectionSelected(collection)">
-              <p class="title is-4" v-html="collection.label"></p>
-            </a>
+            <div class="box has-text-centered" v-on:click="collectionExpanded(collection)">
+              <h4 class="title is-4" v-html="collection.label"></h4>
+              <div v-if="collection == expandedCollection">
+                <p class="subtitle is-6" v-html="collection.description"></p>
+                <div class="is-clearfix">
+                  <div class="is-pulled-right">
+                    <div class="control is-grouped">
+                      <p class="control">
+                        <button v-on:click.stop="editCollection(collection)" class="button is-info is-outlined">Edit collection</button>
+                      </p>
+                      <p class="control">
+                        <button v-on:click.stop="editDocuments(collection)" class="button is-info">Edit documents</button>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </li>
         </ul>
       </span>

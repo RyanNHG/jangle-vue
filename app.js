@@ -2,7 +2,50 @@ const store = new Vuex.Store({
 
     state: {
         currentPage: '/app/collections',
+        collections: [
+            { 
+                label: 'Animals',
+                documents: [
+                    'Dog',
+                    'Cat',
+                    'Mouse',
+                    'Squirrel',
+                    'Elephant'
+                ]
+            },
+            { 
+                label: 'Plants',
+                documents: [
+                    'Tree',
+                    'Flower',
+                    'Bush',
+                    'Vine',
+                    'Shrubbery'
+                ]
+            },
+            { 
+                label: 'Dinosaurs',
+                documents: [
+                    'T-Rex',
+                    'Triceratops',
+                    'Pteradactyl',
+                    'Stegasaurus',
+                    'Velociraptor'
+                ]
+            },
+            { 
+                label: 'Aliens',
+                documents: [
+                    'Greg',
+                    'Bob',
+                    'Susan',
+                    'Johnny',
+                    'Angela'
+                ]
+            }
+        ],
         currentCollection: null,
+        mobileCollectionView: 'DocumentView',
         user: null
     },
 
@@ -32,19 +75,31 @@ const store = new Vuex.Store({
                 }
                 return '';
             }
+        },
+        showDocumentsOnMobile: function(state){
+            return state.mobileCollectionView == 'DocumentView';
         }
     },
 
     mutations: {
 
-        setUser: function(state, payload) {
-            state.user = payload;
+        signInUser: function(state, user) {
+            state.user = user;
+        },
+        signOutUser: function(state) {
+            state.user = null;
         },
         setPage: function(state, newPage) {
             state.currentPage = newPage;
         },
         setCollection: function(state, newCollection) {
             state.currentCollection = newCollection;
+        },
+        removeCollection: function(state) {
+            state.currentCollection = null;
+        },
+        setMobileCollectionView: function(state, newMobileCollectionView) {
+            state.mobileCollectionView = newMobileCollectionView;
         }
 
     }
@@ -77,7 +132,7 @@ Vue.component('sign-in-form', {
         signInButtonClasses: function() {
             return [
                 'button',
-                'is-primary',
+                'is-success',
                 'is-pulled-right',
                 'is-medium',
                 {
@@ -150,6 +205,9 @@ Vue.component('navbar', {
 
         navHeader: function(){
             return store.getters.navHeader;
+        },
+        hasCurrentCollection: function(){
+            return store.state.currentCollection != null;
         }
     },
 
@@ -157,6 +215,9 @@ Vue.component('navbar', {
         signOut: function(){
             store.commit('setUser', null);
             store.commit('setPage', '/sign-in');
+        },
+        removeCollection: function(){
+            store.commit('removeCollection');
         }
     }
 });
@@ -166,13 +227,7 @@ Vue.component('side-nav', {
 
     data: function(){
         return {
-            collections: [
-                { label: 'Animals' },
-                { label: 'Plants' },
-                { label: 'Dinosaurs' },
-                { label: 'Aliens' }
-            ],
-            filterQuery: '',
+            collectionQuery: '',
             allCollectionsLabel: 'All Collections'
         };
     },
@@ -183,14 +238,17 @@ Vue.component('side-nav', {
                 return x.label < y.label;
             });
         },
+        collections: function(){
+            return store.state.collections;
+        },
         filteredCollections: function(){
             var self = this;
             return self.collections.filter( function(collection) {
-                return collection.label.toLowerCase().includes(self.filterQuery.toLowerCase());
+                return collection.label.toLowerCase().includes(self.collectionQuery.toLowerCase());
             });
         },
         displayFilteredCollections: function(){
-            return this.filterQuery.length > 2;
+            return this.collectionQuery.length > 2;
         },
         filterSectionLabel: function(){
 
@@ -198,15 +256,30 @@ Vue.component('side-nav', {
             var middle = '';
             var suffix = '":';
 
-            if (this.filterQuery.length > 10)
-                middle = this.filterQuery.substring(0,9) + '...';
+            if (this.collectionQuery.length > 10)
+                middle = this.collectionQuery.substring(0,9) + '...';
             else
-                middle = this.filterQuery;
+                middle = this.collectionQuery;
 
             return prefix + middle + suffix;
         },
         navHeader: function(){
             return store.getters.navHeader;
+        },
+        collectionIsSelected: function(){
+            return store.state.currentCollection != null;
+        },
+        currentCollection: function(){
+            return store.state.currentCollection;
+        },
+        shouldRenderDocumentView: function(){
+            return store.getters.showDocumentsOnMobile;
+        }
+    },
+
+    methods: {
+        clearCurrentCollection: function(){
+            store.commit('removeCollection');
         }
     }
 
@@ -218,11 +291,47 @@ Vue.component('side-nav-menu-section', {
 
     props: ['headerLabel', 'collections'],
 
+    data: function(){
+        return {
+            expandedCollection: null
+        };
+    },
+
     methods: {
         collectionSelected: function(collection) {
             store.commit('setCollection', collection);
+        },
+        collectionExpanded: function(collection) {
+            if(collection == this.expandedCollection)
+            {
+                this.expandedCollection = null;
+            }
+            else
+            {
+                this.expandedCollection = collection;
+            }
+        },
+        editCollection: function(collection) {
+            store.commit('setMobileCollectionView', 'CollectionView');
+            store.commit('setCollection', collection);
+        },
+        editDocuments: function(collection) {
+            store.commit('setMobileCollectionView', 'DocumentView');
+            store.commit('setCollection', collection);
         }
     }
+
+});
+
+Vue.component('document-view', {
+
+    computed: {
+        currentCollection: function(){
+            return store.state.currentCollection;
+        }
+    },
+
+    template: '#documentViewTemplate'
 
 });
 
