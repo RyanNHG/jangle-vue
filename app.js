@@ -1,7 +1,7 @@
 const store = new Vuex.Store({
 
     state: {
-        currentPage: '/sign-in',
+        currentPage: '/app/collections',
         collections: [
             { 
                 label: 'Animals',
@@ -44,6 +44,7 @@ const store = new Vuex.Store({
                 ]
             }
         ],
+        collectionQuery: '',
         currentCollection: null,
         mobileCollectionView: 'DocumentView',
         user: null
@@ -91,6 +92,9 @@ const store = new Vuex.Store({
         },
         setPage: function(state, newPage) {
             state.currentPage = newPage;
+        },
+        setCollectionQuery: function(state, newCollectionQuery) {
+            state.collectionQuery = newCollectionQuery;
         },
         setCollection: function(state, newCollection) {
             state.currentCollection = newCollection;
@@ -174,7 +178,7 @@ Vue.component('sign-in-form', {
                 self.errorMessage = '';
                 self.isLoading = true;
                 setTimeout(function(){
-                    store.commit('setUser', {
+                    store.commit('signInUser', {
                         username: self.username, 
                         password: self.password
                     });
@@ -227,7 +231,6 @@ Vue.component('side-nav', {
 
     data: function(){
         return {
-            collectionQuery: '',
             allCollectionsLabel: 'All Collections'
         };
     },
@@ -235,7 +238,7 @@ Vue.component('side-nav', {
     computed: {
         alphabetizedCollections: function(){
             return this.collections.sort( function(x,y) {
-                return x.label < y.label;
+                return x.label > y.label;
             });
         },
         collections: function(){
@@ -244,11 +247,11 @@ Vue.component('side-nav', {
         filteredCollections: function(){
             var self = this;
             return self.collections.filter( function(collection) {
-                return collection.label.toLowerCase().includes(self.collectionQuery.toLowerCase());
+                return collection.label.toLowerCase().includes(store.state.collectionQuery.toLowerCase());
             });
         },
         displayFilteredCollections: function(){
-            return this.collectionQuery.length > 2;
+            return store.state.collectionQuery.length > 0;
         },
         filterSectionLabel: function(){
 
@@ -256,30 +259,21 @@ Vue.component('side-nav', {
             var middle = '';
             var suffix = '":';
 
-            if (this.collectionQuery.length > 10)
-                middle = this.collectionQuery.substring(0,9) + '...';
+            if (store.state.collectionQuery.length > 10)
+                middle = store.state.collectionQuery.substring(0,9) + '...';
             else
-                middle = this.collectionQuery;
+                middle = store.state.collectionQuery;
 
             return prefix + middle + suffix;
-        },
-        navHeader: function(){
-            return store.getters.navHeader;
-        },
-        collectionIsSelected: function(){
-            return store.state.currentCollection != null;
         },
         currentCollection: function(){
             return store.state.currentCollection;
         },
+        collectionIsSelected: function(){
+            return store.state.currentCollection != null;
+        },
         shouldRenderDocumentView: function(){
             return store.getters.showDocumentsOnMobile;
-        }
-    },
-
-    methods: {
-        clearCurrentCollection: function(){
-            store.commit('removeCollection');
         }
     }
 
@@ -332,6 +326,71 @@ Vue.component('document-view', {
     },
 
     template: '#documentViewTemplate'
+
+});
+
+Vue.component('mobile-search-header', {
+
+    template: '#mobileSearchHeaderTemplate',
+
+    computed: {
+
+        navHeader: function(){
+            return store.getters.navHeader;
+        },
+        collectionIsSelected: function(){
+            return store.state.currentCollection != null;
+        },
+        shouldRenderDocumentView: function(){
+            return store.getters.showDocumentsOnMobile;
+        }
+
+    },
+
+    methods: {
+        setCollectionQuery: function(e){
+            var query = e.target.value;
+            store.commit('setCollectionQuery', query);
+        },
+        setDocumentQuery: function(e){
+            var query = e.target.value;
+            //store.commit('setDocumentQuery', text);
+        },
+    }
+
+});
+
+Vue.component('desktop-search-header', {
+
+    template: '#desktopSearchHeaderTemplate',
+
+    computed: {
+
+        navHeader: function(){
+            return store.getters.navHeader;
+        },
+        collectionIsSelected: function(){
+            return store.state.currentCollection != null;
+        },
+        shouldRenderDocumentView: function(){
+            return store.getters.showDocumentsOnMobile;
+        },
+        currentCollection: function(){
+            return store.state.currentCollection;
+        }
+
+    },
+
+    methods: {
+        setCollectionQuery: function(e){
+            var query = e.target.value;
+            store.commit('setCollectionQuery', query);
+        },
+
+        clearCurrentCollection: function(){
+            store.commit('removeCollection');
+        }
+    }
 
 });
 

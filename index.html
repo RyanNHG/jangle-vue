@@ -82,7 +82,7 @@
       <navbar></navbar>
       <div class="columns is-gapless" style="height: calc(100% - 52px);">
         <side-nav></side-nav>
-        <div class="column is-hidden-mobile">
+        <div class="column is-hidden-mobile" style="overflow: auto;">
           <document-view></document-view>
         </div>
       </div>
@@ -169,68 +169,15 @@
     <div class="column is-narrow" style="height: 100%;">
       <div class="hero is-bold" style="height:100%;">
 
-        <div class="hero-header">
 
-          <!-- Search Bar - Desktop -->
-            <div v-if="collectionIsSelected" class="nav is-hidden-mobile">
-              <div class="container is-fluid">
-                <div class="nav-left">
-                <!-- Back button -->
-                  <div class="nav-item is-paddingless">
-                    <a class="button" v-on:click="clearCurrentCollection()">
-                      <span></span>
-                      <span class="icon">
-                        <i class="fa fa-arrow-left"></i>
-                      </span>
-                      <span></span>
-                    </a>
-                  </div>
-                  <!-- Collection name -->
-                  <div class="nav-item">
-                    <h4 v-html="currentCollection.label" class="subtitle is-5"></h4>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div v-else class="nav is-hidden-mobile">
-              <div class="nav-center">
-                <div class="nav-item" style="width: 100%;">
-                  <p class="control has-icon has-icon-right">
-                    <input class="input" type="text" placeholder="Find a collection" v-model="collectionQuery" />
-                    <i class="fa fa-search"></i>
-                  </p>
-                </div>
-              </div>
-            </div>
-
-          <!-- Header & Search Mobile -->
-          <div class="hero is-hidden-tablet">
-            <div class="hero-body" style="padding-bottom: 0;">
-              <h3 class="title is-2 has-text-centered" v-html="navHeader"></h3>
-              <p v-if="!collectionIsSelected || shouldRenderDocumentView" class="control has-icon has-icon-right">
-
-                <input v-if="collectionIsSelected"
-                class="input is-medium" 
-                type="text" 
-                placeholder="Find a document"
-                />
-
-                <input v-else
-                class="input is-medium" 
-                type="text" 
-                placeholder="Find a collection" 
-                v-model="collectionQuery" />
-                <i class="fa fa-search"></i>
-              </p>
-            </div>
-          </div>
-
-        </div>
+        <!-- Search Bar - Desktop -->
+        <desktop-search-header></desktop-search-header>
 
         <template v-if="collectionIsSelected">
 
           <!-- Mobile View -->
-          <div class="hero-body has-text-centered is-hidden-tablet">
+          <div class="has-text-centered is-hidden-tablet" style="overflow: auto;">
+            <mobile-search-header></mobile-search-header>
             <document-view v-if="shouldRenderDocumentView"></document-view>
             <h4 v-else class="subtitle is-5" style="color: rgb(204, 204, 204);">'{{currentCollection.label}}' Information</h4>
           </div>
@@ -242,9 +189,9 @@
 
         </template>
 
-
         <!-- Collection Menu -->
         <div v-else style="height: 100%; overflow: auto;">
+          <mobile-search-header style="padding-bottom: 0;"></mobile-search-header>
           <aside class="menu" style="padding: 20px;">
 
             <!-- Filtered Collections -->
@@ -257,7 +204,7 @@
             <!-- All Collections -->
             <side-nav-menu-section 
             v-bind:header-label="allCollectionsLabel" 
-            v-bind:collections="collections">
+            v-bind:collections="alphabetizedCollections">
             </side-nav-menu-section>
 
           </aside>
@@ -346,7 +293,7 @@
             </a>
           </li>
           <li v-else v-for="collection in collections" style="margin-bottom: 20px;">
-            <div class="box has-text-centered" v-on:click="collectionExpanded(collection)">
+            <div class="box has-text-centered" v-on:click="collectionExpanded(collection)" style="cursor: pointer;">
               <h4 class="title is-4" v-html="collection.label"></h4>
               <div v-if="collection == expandedCollection">
                 <p class="subtitle is-6" v-html="collection.description"></p>
@@ -369,6 +316,64 @@
       </span>
 
     </span>
+  </script>
+
+  <script type="text/x-template" id="mobileSearchHeaderTemplate">
+      <div class="hero-body is-hidden-tablet">
+        <h3 class="title is-2 has-text-centered" v-html="navHeader"></h3>
+        <p v-if="!collectionIsSelected || shouldRenderDocumentView" class="control has-icon has-icon-right">
+
+          <input v-if="collectionIsSelected"
+          class="input is-medium" 
+          type="text" 
+          placeholder="Find a document"
+          />
+
+          <input v-else
+          class="input is-medium" 
+          type="text" 
+          placeholder="Find a collection" 
+          v-on:keyup="setCollectionQuery" />
+
+          <i class="fa fa-search"></i>
+
+        </p>
+      </div>
+  </script>
+
+  <script type="text/x-template" id="desktopSearchHeaderTemplate">
+    <div class="hero-header is-hidden-mobile">
+      <div v-if="collectionIsSelected" class="nav">
+        <div class="container is-fluid">
+          <div class="nav-left">
+          <!-- Back button -->
+            <div class="nav-item is-paddingless">
+              <a class="button" v-on:click="clearCurrentCollection()">
+                <span></span>
+                <span class="icon">
+                  <i class="fa fa-arrow-left"></i>
+                </span>
+                <span></span>
+              </a>
+            </div>
+            <!-- Collection name -->
+            <div class="nav-item">
+              <h4 v-html="currentCollection.label" class="subtitle is-5"></h4>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div v-else class="nav">
+        <div class="nav-center">
+          <div class="nav-item" style="width: 100%;">
+            <p class="control has-icon has-icon-right">
+              <input class="input" type="text" placeholder="Find a collection" v-on:keyup="setCollectionQuery" />
+              <i class="fa fa-search"></i>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
   </script>
 
   <!-- JS -->
